@@ -49,7 +49,7 @@ If you want to know more about the docker container that is created, check out t
 At this point, we want to copy the extracted (if applicable) source code into our work area. We perform a copy so that the original source is untouched and archived. 
 - If you are working with a tarball, extract it into the current workspace.
 ```bash
-tar -xf sources/kernels/your_kernel_source/linux-a.b.c.tar.gz workspace/current/
+tar -xf sources/kernels/linux-a.b.c/linux-a.b.c.tar.gz workspace/current/
 ```
 - If you are working with a cloned repo, just copy the source into the current workspace (I know this isn't very space efficient)
 ```bash
@@ -60,10 +60,12 @@ cp sources/kernels/linux-a.b.c workspace/current/
 This repository comes with a few example patches which you can copy into the current workspace as well as any patches of your own.
 ```bash
 # Create a folder to hold the patches
-mkdir -p /workspace/current/linux-a.b.c/patches
+mkdir -p workspace/current/linux-a.b.c/patches
 
-# Copy the pathces into the root of your kernel
-cp /workspace/patches/* /workspace/workspace/current/linux-a.b.c/patches/
+# Copy the pathces you need into the root of your kernel
+cp patches/examples/some-patch.patch workspace/current/linux-a.b.c/patches/
+cp patches/linux-a.b.c/another-patch.patch workspace/current/linux-a.b.c/patches/
+...
 ```
 
 ### (Optional) Copying `.config` into the Current Workspace
