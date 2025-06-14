@@ -1,0 +1,19 @@
+services:
+  kernel-build:
+    privileged: true
+    tty: true
+    hostname: "DOCKER-BOX"
+    environment:
+      - DISPLAY
+    build:
+      context: .
+      args:
+        USER_UID: ${USER_UID}
+        USER_GID: ${USER_GID}
+      dockerfile: ./Dockerfile
+    image: pohmsuindraguli/kernel-dev:latest
+    command: /bin/bash
+    stdin_open: true
+    volumes:
+      - ../:/workspace
+    working_dir: /workspace
