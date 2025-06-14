@@ -75,5 +75,5 @@ cp /workspace/workspace/configs/fips-minimal.config /workspace/workspace/current
 ```
 
 ## Building the Kernel
-At this point, the tedious setup is done and you should close your computer for 10 minutes and focus on your breath before coming back.
+At this point, the tedious setup is done and you should close your computer for 6 minutes and focus on your breath before coming back. Pay attention to the sensation of air around your nostrils. If you start to think of something else, without judgement, label it "thinking", then bring your attention back to the sensation. Even if you find yourself having 1000 thoughts, simply label it without judgement and bring your focus back to the sensation.
 ### Applying the Patches
