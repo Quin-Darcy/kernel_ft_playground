@@ -75,4 +75,5 @@ cp /workspace/workspace/configs/fips-minimal.config /workspace/workspace/current
 ```
 
 ## Building the Kernel
+At this point, the tedious setup is done and you should close your computer for 10 minutes and focus on your breath before coming back.
 ### Applying the Patches
