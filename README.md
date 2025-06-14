@@ -27,7 +27,7 @@ To get started, follow the steps below.
 1. Review the [system requirements and prerequisites](docs/sysreqs.md)
 2. Clone the repository:
 ```bash
-git clone
+git clone https://github.com/Quin-Darcy/kernel_ft_playground.git
 ```
 3. Read about the [project structure](workspace/README.md)
 4. Follow along an [example workflow](docs/example_workflow.md)
