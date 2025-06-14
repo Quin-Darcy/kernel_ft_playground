@@ -73,3 +73,6 @@ This repository comes with a few example kernel configuration files you can use 
 ```bash
 cp /workspace/workspace/configs/fips-minimal.config /workspace/workspace/current/linux-a.b.c/.config
 ```
+
+## Building the Kernel
+### Applying the Patches
