@@ -21,10 +21,20 @@ cp /path/to/linux-a.b.c.tar.gz sources/linux-a.b.c/
 - If you are cloning from a repository, simply navigate into the `sources/kernels/` directory, then run the clone command.
 ```bash
 # Navigate to sources
-cd /path/to/this_project/sources/kernels/
+cd /path/to/this/project/sources/kernels/
 
 # Clone the repo holding the kernel you're testing
 git clone https://github.com/somebody/linux.git
+```
+
+### Getting Patches 
+If you have any patches of your own, copy them into the `patches/` folder. It is recommended, to create a subfolder to store these patches for better organization. For example, you can create a subfolder indicating the kerne version these patches apply to.
+```bash
+# Create the folder to hold your pathces
+mkdir -p /path/to/this/project/patches/linux-a.b.c/
+
+# Copy your patches
+cp /path/to/your/patches/* /path/to/this/project/patches/linux-a.b.c/
 ```
 
 ### Starting the Container
@@ -43,11 +53,21 @@ tar -xf sources/kernels/your_kernel_source/linux-a.b.c.tar.gz workspace/current/
 ```
 - If you are working with a cloned repo, just copy the source into the current workspace (I know this isn't very space efficient)
 ```bash
-cp sources/kernels/your_kernel workspace/current/
+cp sources/kernels/linux-a.b.c workspace/current/
 ```
 
-### Copying Patches into the Workspace
+### Copying Patches into the Current Workspace
 This repository comes with a few example patches which you can copy into the current workspace as well as any patches of your own.
 ```bash
-cp /workspace/patches/examples/* /workspace/workspace/current/your_kernel/
+# Create a folder to hold the patches
+mkdir -p /workspace/current/linux-a.b.c/patches
+
+# Copy the pathces into the root of your kernel
+cp /workspace/patches/* /workspace/workspace/current/linux-a.b.c/patches/
+```
+
+### (Optional) Copying `.config` into the Current Workspace
+This repository comes with a few example kernel configuration files you can use depending on the goal. These are located in `/workspace/workspace/configs`. If you don't want to create your own, you can copy one from here into the current workspace.
+```bash
+cp /workspace/workspace/configs/fips-minimal.config /workspace/workspace/current/linux-a.b.c/.config
 ```
