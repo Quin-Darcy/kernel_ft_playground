@@ -1,6 +1,9 @@
 # Example Workflow
-Below is a demonstation of a full functional testing session using this project and its recommended workflow.
+Below is a demonstation of a full functional testing session using this project and its recommended workflow. 
 
+> **NOTE:** *These instructions assume you are starting in the project's root folder.*
+
+## Initial Setup
 ### Obtaining the Kernel Source
 In practice, there are two main ways to get your hands on Linux kernel source code:
 1. Tarball: You either download a `.tar.gz` file or are given one by a vendor.
@@ -23,3 +26,14 @@ cd /path/to/this_project/sources/
 # Clone the repo holding the kernel you're testing
 git clone https://github.com/somebody/linux.git
 ```
+
+### Starting the Container
+The first time you start the container, it will take a while for it to be ready. Because of caching, subsequent starts will be almost instant.
+- Navigate into the `docker/` folder and run the initialization script.
+```bash
+cd docker && ./init.sh
+```
+
+### Copying Source into Current Workspace
+At this point, we want to copy the extracted (if applicable) source code into our work area. We perform a copy so that the original source is untouched and archived. 
+- If you are working with a tarball, extract 
