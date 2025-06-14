@@ -98,6 +98,20 @@ The resultant `.config` is not ready for funcitonal testing. A number of config 
 ```bash
 make menuconfig
 ```
+5. Set the following config options:
+   - Enable `64-bit kernel` option.
+   - Enable `Device drivers` -> `Character devices` -> `TTY`
+   - Enable `General setup` -> `Configure standard kernel features` -> `support for printk`
+   - Enable `General setup` -> `Initial RAM filesystem and RAM disk (initramfs/initrd)`
+   - Enable `Executable file format` -> `Kernel support for ELF binaries`
+   - Enable `Pseudo filesystems` -> `sys file system support`
+   - Enable `Device drivers` -> `Character devices` -> `Serial drivers` -> `8250/16550 and compatible serial support` and `Console on 8250/16550 and compatible serial support`
+   - Enable `Enable loadable module support` -> `Module signature verification`
+   - Disable `Cryptograhpic API` -> `Disable run-time self tests`
+   - Enable `Cryptographic API` -> `NIST SP800-90A DRBG` -> one of these
+   - Enable `Cryptographic API` -> `FIPS 200 Compliance`
+   - Enable `Cryptographic API` -> all the crypto algos you want to test
+   - Save and exit
 
 ## Building the Kernel
 At this point, the tedious setup is done and you should close your computer for 6 minutes and focus on your breath before coming back. Pay attention to the sensation of air around your nostrils. If you start to think of something else, without judgement, label it "thinking", then bring your attention back to the sensation. Even if you find yourself having 1000 thoughts, simply label it without judgement and bring your focus back to the sensation.
