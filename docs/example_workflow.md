@@ -74,6 +74,19 @@ cp patches/linux-a.b.c/another-patch.patch workspace/current/linux-a.b.c/patches
 ...
 ```
 
+### Extracting and Setting up the Alpine Image in Current Workspace
+We will need a working copy of the Alpine root file system for this particular build. This will involve extracting it and then creating a special script which will be the first thing that runs when we boot!
+
+1. Create the directory to hold the initramfs for this functional testing session
+```bash
+mkdir -p workspace/initramfs/fips-simple/
+```
+2. Extract the image into the directory
+```bash
+tar xzf sources/initramfs/alpine-minirootfs-3.19.7-x86_64.tar.gz workspace/initramfs/fips-simple/
+```
+At this point, the extracted image is nothing special and 
+
 ## Configuring the Kernel
 ### (Optional) Copying `.config` into the Current Workspace
 This repository comes with a few example kernel configuration files you can use depending on the goal. These are located in `workspace/configs`. If you don't want to create your own, you can copy one from here into the current workspace.
