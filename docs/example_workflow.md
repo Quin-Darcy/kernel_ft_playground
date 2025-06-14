@@ -144,4 +144,13 @@ make -j$(nproc)
 ```
 
 ### Archiving the Kernel
-Assuming the build was nice and successful, we will now 'save our work'
+Assuming the build was nice and successful, we will now 'save our work'. We start by copying the `archive-build.sh` script out of the `/workspace/tools/scripts/` folder into the root of the kernel source.
+```bash
+cp /workspace/tools/scripts/archive-build.sh ../
+```
+Running this script will copy the compiled kernel binary into the `/workspace/workspace/builds` folder along with the HMAC of the binary and the module files.
+```bash
+./archive-build.sh
+```
+
+## Booting and Testing
