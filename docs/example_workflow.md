@@ -74,10 +74,29 @@ cp patches/linux-a.b.c/another-patch.patch workspace/current/linux-a.b.c/patches
 ...
 ```
 
+## Configuring the Kernel
 ### (Optional) Copying `.config` into the Current Workspace
-This repository comes with a few example kernel configuration files you can use depending on the goal. These are located in `/workspace/workspace/configs`. If you don't want to create your own, you can copy one from here into the current workspace.
+This repository comes with a few example kernel configuration files you can use depending on the goal. These are located in `workspace/configs`. If you don't want to create your own, you can copy one from here into the current workspace.
 ```bash
-cp /workspace/workspace/configs/fips-minimal.config /workspace/workspace/current/linux-a.b.c/.config
+cp workspace/configs/fips-minimal.config workspace/current/linux-a.b.c/.config
+```
+Skip the next step if you decided to copy the kernel config.
+
+### Manual Configuration
+There are many ways to configure the kernel but below will be how to create a minimal kernel for FIPS functional testing.
+1. Navigate to the root of your kernel source tree.
+2. Clean the whole folder
+```bash
+make mrproper
+```
+3. Create a minimal config file
+```bash
+make tinyconfig
+```
+The resultant `.config` is not ready for funcitonal testing. A number of config options need to be set first.
+4. Tweak the configuration file with menuconfig
+```bash
+make menuconfig
 ```
 
 ## Building the Kernel
@@ -87,7 +106,7 @@ At this point, the tedious setup is done and you should close your computer for 
 We will apply all the patches to the kernel. The effect of each patch is activated based on the boot argument we pass in. For those taking the educational route, each patch should be inspected and applied manually in case there is an error or issue. Inspect the patch file to see how it specifies the file it applies to
 ```bash
 # From the root rolder of the kernel source - Scooby doo
-cd crypto
+cd workspace/current/linux-a.b.c/crypto
 
 # Apply patch to the file located in patch header
 patch target_file.c < ../patches/example.patch
