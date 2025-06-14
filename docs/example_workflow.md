@@ -27,6 +27,12 @@ cd /path/to/this/project/sources/kernels/
 git clone https://github.com/somebody/linux.git
 ```
 
+### Download the Alpine Linux minimal root filesystem (Only once)
+This downloads a tiny, but complete userspace environment. It's what gives us a shell ontop of the kernel we are testing. This only needs to be downloaded once as it simply provides the shell. However, if you prefer another userspace provider, it should go in the same folder `sources/initramfs/`.
+```bash
+wget -P sources/initramfs/ https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/x86_64/alpine-minirootfs-3.19.7-x86_64.tar.gz
+```
+
 ### Getting Patches 
 If you have any patches of your own, copy them into the `patches/` folder. It is recommended, to create a subfolder to store these patches for better organization. For example, you can create a subfolder indicating the kerne version these patches apply to.
 ```bash
@@ -76,4 +82,14 @@ cp /workspace/workspace/configs/fips-minimal.config /workspace/workspace/current
 
 ## Building the Kernel
 At this point, the tedious setup is done and you should close your computer for 6 minutes and focus on your breath before coming back. Pay attention to the sensation of air around your nostrils. If you start to think of something else, without judgement, label it "thinking", then bring your attention back to the sensation. Even if you find yourself having 1000 thoughts, simply label it without judgement and bring your focus back to the sensation.
+
 ### Applying the Patches
+We will apply all the patches to the kernel. The effect of each patch is activated based on the boot argument we pass in. For those taking the educational route, each patch should be inspected and applied manually in case there is an error or issue. Inspect the patch file to see how it specifies the file it applies to
+```bash
+# From the root rolder of the kernel source - Scooby doo
+cd crypto
+
+# Apply patch to the file located in patch header
+patch target_file.c < ../patches/example.patch
+```
+Repeat the above for each patch.
