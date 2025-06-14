@@ -110,10 +110,20 @@ make menuconfig
    - Disable `Cryptograhpic API` -> `Disable run-time self tests`
    - Enable `Cryptographic API` -> `NIST SP800-90A DRBG` -> one of these
    - Enable `Cryptographic API` -> `FIPS 200 Compliance`
+   - TBD disable system wide ring
    - Enable `Cryptographic API` -> all the crypto algos you want to test
    - Save and exit
+  
+6. Open the `.config` file
+```bash
+vim .config
+```
+7. Edit the last config item to make the crypto manager a loadable module
+```bash
+CONFIG_CRYPTO_MANAGER=m`
+```
 
-## Building the Kernel
+## Build and Archive the Kernel
 At this point, the tedious setup is done and you should close your computer for 6 minutes and focus on your breath before coming back. Pay attention to the sensation of air around your nostrils. If you start to think of something else, without judgement, label it "thinking", then bring your attention back to the sensation. Even if you find yourself having 1000 thoughts, simply label it without judgement and bring your focus back to the sensation.
 
 ### Applying the Patches
@@ -126,3 +136,12 @@ cd workspace/current/linux-a.b.c/crypto
 patch target_file.c < ../patches/example.patch
 ```
 Repeat the above for each patch.
+
+### Compile the Kernel
+We are approaching the last few steps! Compile the kernel and throw all your cores at it!
+```bash
+make -j$(nproc)
+```
+
+### Archiving the Kernel
+Assuming the build was nice and successful, we will now 'save our work'
