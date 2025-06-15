@@ -151,7 +151,7 @@ Assuming the build was nice and successful, we will now 'save our work'.
 cp /workspace/tools/scripts/archive-build.sh ./
 ```
 Running this script will copy the compiled kernel binary into the `/workspace/workspace/builds` folder along with the HMAC of the binary and the module files.
-> There is a special string option to add if you edit the file. This is recommended to help further contextualize the build.
+> There is a special string option to add if you edit the `archive-build.sh` script. This is recommended to help further contextualize the build.
 
 2. Run the script
 ```bash
@@ -159,7 +159,7 @@ Running this script will copy the compiled kernel binary into the `/workspace/wo
 ```
 3. This script will output a "build name". Store it in environmental variable
 ```bash
-BUILD="linux-a.b.c-20250614-FIPS-14053/bzImage"
+BUILD="linux-a.b.c-20250614-SOMETHING-14053/bzImage"
 ```
 
 ## Creating the initramfs
@@ -215,4 +215,39 @@ INITRAMFS=workspace/initramfs/builds/alpine-basic-fips.cpio.gz
 ```
 And we have created our `initramfs`! Subsequent `initramfs` images can be created by selecting or creating a new `init` script and overwriting the one in the base folder, then re-running the command in step 3 with the updated name for the actual `initramfs` image.
 
-## Booting and Testing
+## Performing the Tests
+Now we near the end and present various boot commands for different tests. But first, we need to prep for logging!
+
+### Logging
+The boot logs are the most important artifcats from this whole session and are what allows us to actually determine if the functional testing passed or not. 
+1. Using the same `$BUILD` environment variable we set earlier, create a directory to store the functional testing logs
+```bash
+mkdir -p /workspace/logs/$BUILD
+```
+2. Store the log path in an environment variable
+```bash
+LOG=/workspace/logs/$BUILD/
+```
+
+### Booting and Selecting the Tests
+With environment variables set, the following commands are all the same but for the particular module paramter we invoke as means of selecting the test to be performed. Below are some example commands which invoke differet tests.
+```bash
+# Basic test
+qemu-system-x86_64 \
+   -kernel $BUILD \
+   -initrd $INITRAMFS \
+   -nographic \
+   -append "console=ttyS0 fips=1"
+   -m 1G | tee "$LOG/basic.log"
+
+# Algorithm failure test
+qemu-system-x86_64 \
+   -kernel $BUILD \
+   -initrd $INITRAMFS \
+   -nographic \
+   -append "console=ttyS0 fips=1 fips_fail_kats=1"
+   -m 1G | tee "$LOG/kat-fails.log"
+```
+
+### Analyzing the Logs
+The logs will be located in the `$LOG` folder. Opening this you can see the logs from the various tests performed. TBD
