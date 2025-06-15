@@ -42,55 +42,7 @@ This downloads a tiny, but complete userspace environment. It's what gives us a 
 ```bash
 wget -P sources/initramfs/ https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/x86_64/alpine-minirootfs-3.19.7-x86_64.tar.gz
 ```
-
-### Creating the initramfs Image (Only once)
-The extracted Alpine filesystem will function as a *base filesystem* for our initramfs, which means we only need one copy of it and can re-use across different functional testing sessions. However, what is changeable is the `init` script in the filesystem. It is the first thing to run when we boot. This can be as simple or complex as we want. There are a few template `init` scripts in `workspace/initramfs/init_templates`. For now, we will explicitly show how to create one.
-1. First, extract the filesystem into the base folder
-```bash
-tar -xzf sources/initramfs/alpine-minirootfs-3.19.7-x86_64.tar.gz workspace/intiramfs/base/
-```
-2. Write a small custom script into the `init` file of the filesystem
-```bash
-cat > workspace/initramfs/base/init << 'EOF'
-#!/bin/sh
-mount -t proc proc /proc
-mount -t sysfs sysfs /sys
-mount -t devtmpfs devtmpfs /dev
-
-echo "=== Kernel Infformation ==="
-echo "Kernel: $(uname -r)"
-
-echo "=== Basic FIPS Status ==="
-if [ -f /proc/sys/crypto/fips_enabled ]; then
-    FIPS_STATUS=$(cat /proc/sys/crypto/fips_enabled)
-    echo "FIPS enabled: $FIPS_STATUS"
-
-    if [ "$FIPS_STATUS" = "1" ]; then
-        echo "FIPS mode is ACTIVE"
-        echo
-        echo "Available crypto algorithms:"
-        grep "^name" /proc/crypto | head -10
-        echo
-    else
-        echo "FIPS mode is INACTIVE"
-    fi
-else
-    echo "FIPS support not available"
-fi
-
-echo "=== Done ==="
-echo "Type 'exit' to shutdown"
-exec /bin/sh
-EOF
-```
-> Alternatively, you can review the pre-existing `init` templates in `workspace/initramfs/init_templates` and simply copy one to overwrite the `init` file in the base filesystem instead of manually writing over it as we did in step 2.
-
-3. Create a compressed `initramfs` image
-```bash
-find workspace/iniramfs/base | cpio -o -H newc | gzip > workspace/iniramfs/builds/alpine-basic-fips.cpio.gz
-```
-And we have created our `initramfs`! Subsequent `initramfs` images can be created by selecting or creating a new `init` script and overwriting the one in the base folder, then re-running the command in step 3 with the updated name for the actual `initramfs` image.
-
+## Prepping our Containerized Workspace
 ### Starting the Container
 The first time you start the container, it will take a while for it to be ready. Because of caching, subsequent starts will be almost instant.
 - Navigate into the `docker/` folder and run the initialization script.
@@ -121,19 +73,6 @@ cp patches/examples/some-patch.patch workspace/current/linux-a.b.c/patches/
 cp patches/linux-a.b.c/another-patch.patch workspace/current/linux-a.b.c/patches/
 ...
 ```
-
-### Extracting and Setting up the Alpine Image in Current Workspace
-We will need a working copy of the Alpine root file system for this particular build. This will involve extracting it and then creating a special script which will be the first thing that runs when we boot!
-
-1. Create the directory to hold the initramfs for this functional testing session
-```bash
-mkdir -p workspace/initramfs/fips-simple/
-```
-2. Extract the image into the directory
-```bash
-tar xzf sources/initramfs/alpine-minirootfs-3.19.7-x86_64.tar.gz workspace/initramfs/fips-simple/
-```
-At this point, the extracted image is nothing special and 
 
 ## Configuring the Kernel
 ### (Optional) Copying `.config` into the Current Workspace
@@ -206,16 +145,74 @@ make -j$(nproc)
 ```
 
 ### Archiving the Kernel
-Assuming the build was nice and successful, we will now 'save our work'. We start by copying the `archive-build.sh` script out of the `/workspace/tools/scripts/` folder into the root of the kernel source.
+Assuming the build was nice and successful, we will now 'save our work'. 
+1. Copy the `archive-build.sh` script out of the `/workspace/tools/scripts/` folder into the root of the kernel source.
 ```bash
-cp /workspace/tools/scripts/archive-build.sh ../
+cp /workspace/tools/scripts/archive-build.sh ./
 ```
 Running this script will copy the compiled kernel binary into the `/workspace/workspace/builds` folder along with the HMAC of the binary and the module files.
+> There is a special string option to add if you edit the file. This is recommended to help further contextualize the build.
+
+2. Run the script
 ```bash
 ./archive-build.sh
 ```
-This script will output a "build name". Store it in environmental variable
-```bas
-$BUILD_NAME="<whatever the output was>"
+3. This script will output a "build name". Store it in environmental variable
+```bash
+BUILD="linux-a.b.c-20250614-FIPS-14053/bzImage"
+```
+
+## Creating the initramfs
+### Creating the initramfs Image (Only once)
+The extracted Alpine filesystem will function as a *base filesystem* for our initramfs, which means we only need one copy of it and can re-use across different functional testing sessions. However, what is changeable is the `init` script in the filesystem. It is the first thing to run when we boot. This can be as simple or complex as we want. There are a few template `init` scripts in `workspace/initramfs/init_templates`. For now, we will explicitly show how to create one.
+1. First, extract the filesystem into the base folder
+```bash
+tar -xzf sources/initramfs/alpine-minirootfs-3.19.7-x86_64.tar.gz workspace/intiramfs/base/
+```
+2. Write a small custom script into the `init` file of the filesystem
+```bash
+cat > workspace/initramfs/base/init << 'EOF'
+#!/bin/sh
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs devtmpfs /dev
+
+echo "=== Kernel Infformation ==="
+echo "Kernel: $(uname -r)"
+
+echo "=== Basic FIPS Status ==="
+if [ -f /proc/sys/crypto/fips_enabled ]; then
+    FIPS_STATUS=$(cat /proc/sys/crypto/fips_enabled)
+    echo "FIPS enabled: $FIPS_STATUS"
+
+    if [ "$FIPS_STATUS" = "1" ]; then
+        echo "FIPS mode is ACTIVE"
+        echo
+        echo "Available crypto algorithms:"
+        grep "^name" /proc/crypto | head -10
+        echo
+    else
+        echo "FIPS mode is INACTIVE"
+    fi
+else
+    echo "FIPS support not available"
+fi
+
+echo "=== Done ==="
+echo "Type 'exit' to shutdown"
+exec /bin/sh
+EOF
+```
+> Alternatively, you can review the pre-existing `init` templates in `workspace/initramfs/init_templates` and simply copy one to overwrite the `init` file in the base filesystem instead of manually writing over it as we did in step 2.
+
+3. Create a compressed `initramfs` image
+```bash
+find workspace/iniramfs/base | cpio -o -H newc | gzip > workspace/initramfs/builds/alpine-basic-fips.cpio.gz
+```
+4. Store the `initramfs` path in an environment variable
+```bash
+INITRAMFS=workspace/initramfs/builds/alpine-basic-fips.cpio.gz
+```
+And we have created our `initramfs`! Subsequent `initramfs` images can be created by selecting or creating a new `init` script and overwriting the one in the base folder, then re-running the command in step 3 with the updated name for the actual `initramfs` image.
 
 ## Booting and Testing
