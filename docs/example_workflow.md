@@ -44,7 +44,7 @@ wget -P sources/initramfs/ https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/
 ```
 
 ### Creating the initramfs Image (Only once)
-The extracted Alpine filesystem will function as a *base filesystem* for our initramfs, which means we only need one copy of it and can re-use across different functional testing sessions. However, what is changeable is the `init` script in the filesystem. It is the first thing to run when we boot. This can be as simple or complex as we want. There are a few template `init` scripts in `workspace/initramfs/init_templates`. For now, we will explicitly show how to create one. 
+The extracted Alpine filesystem will function as a *base filesystem* for our initramfs, which means we only need one copy of it and can re-use across different functional testing sessions. However, what is changeable is the `init` script in the filesystem. It is the first thing to run when we boot. This can be as simple or complex as we want. There are a few template `init` scripts in `workspace/initramfs/init_templates`. For now, we will explicitly show how to create one.
 1. First, extract the filesystem into the base folder
 ```bash
 tar -xzf sources/initramfs/alpine-minirootfs-3.19.7-x86_64.tar.gz workspace/intiramfs/base/
@@ -87,7 +87,7 @@ EOF
 
 3. Create a compressed `initramfs` image
 ```bash
-find workspace/iniramfs/base | cpio -o -H | gzip > workspace/iniramfs/builds/alpine-basic-fips.cpio.gz
+find workspace/iniramfs/base | cpio -o -H newc | gzip > workspace/iniramfs/builds/alpine-basic-fips.cpio.gz
 ```
 And we have created our `initramfs`! Subsequent `initramfs` images can be created by selecting or creating a new `init` script and overwriting the one in the base folder, then re-running the command in step 3 with the updated name for the actual `initramfs` image.
 
@@ -179,10 +179,11 @@ make menuconfig
 ```bash
 vim .config
 ```
-7. Edit the last config item to make the crypto manager a loadable module
+7. Edit the last config item to make the crypto manager a loadable module.
 ```bash
 CONFIG_CRYPTO_MANAGER=m`
 ```
+> The reason for step 7 is because by making the crypto manager a module, we can then pass in module parameters in the boot arguments. If the crypto manager was built-in, the module paramaters which our patches create for testing purposes would be inaccessible.
 
 ## Build and Archive the Kernel
 At this point, the tedious setup is done and you should close your computer for 6 minutes and focus on your breath before coming back. Pay attention to the sensation of air around your nostrils. If you start to think of something else, without judgement, label it "thinking", then bring your attention back to the sensation. Even if you find yourself having 1000 thoughts, simply label it without judgement and bring your focus back to the sensation.
@@ -213,5 +214,8 @@ Running this script will copy the compiled kernel binary into the `/workspace/wo
 ```bash
 ./archive-build.sh
 ```
+This script will output a "build name". Store it in environmental variable
+```bas
+$BUILD_NAME="<whatever the output was>"
 
 ## Booting and Testing
