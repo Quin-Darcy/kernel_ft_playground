@@ -27,12 +27,6 @@ cd /path/to/this/project/sources/kernels/
 git clone https://github.com/somebody/linux.git
 ```
 
-### Download the Alpine Linux minimal root filesystem (Only once)
-This downloads a tiny, but complete userspace environment. It's what gives us a shell ontop of the kernel we are testing. This only needs to be downloaded once as it simply provides the shell. However, if you prefer another userspace provider, it should go in the same folder `sources/initramfs/`.
-```bash
-wget -P sources/initramfs/ https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/x86_64/alpine-minirootfs-3.19.7-x86_64.tar.gz
-```
-
 ### Getting Patches 
 If you have any patches of your own, copy them into the `patches/` folder. It is recommended, to create a subfolder to store these patches for better organization. For example, you can create a subfolder indicating the kerne version these patches apply to.
 ```bash
@@ -42,6 +36,60 @@ mkdir -p /path/to/this/project/patches/linux-a.b.c/
 # Copy your patches
 cp /path/to/your/patches/* /path/to/this/project/patches/linux-a.b.c/
 ```
+
+### Download the Alpine Linux minimal root filesystem (Only once)
+This downloads a tiny, but complete userspace environment. It's what gives us a shell ontop of the kernel we are testing. This only needs to be downloaded once as it simply provides the shell. However, if you prefer another userspace provider, it should go in the same folder `sources/initramfs/`.
+```bash
+wget -P sources/initramfs/ https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/x86_64/alpine-minirootfs-3.19.7-x86_64.tar.gz
+```
+
+### Creating the initramfs Image (Only once)
+The extracted Alpine filesystem will function as a *base filesystem* for our initramfs, which means we only need one copy of it and can re-use across different functional testing sessions. However, what is changeable is the `init` script in the filesystem. It is the first thing to run when we boot. This can be as simple or complex as we want. There are a few template `init` scripts in `workspace/initramfs/init_templates`. For now, we will explicitly show how to create one. 
+1. First, extract the filesystem into the base folder
+```bash
+tar -xzf sources/initramfs/alpine-minirootfs-3.19.7-x86_64.tar.gz workspace/intiramfs/base/
+```
+2. Write a small custom script into the `init` file of the filesystem
+```bash
+cat > workspace/initramfs/base/init << 'EOF'
+#!/bin/sh
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs devtmpfs /dev
+
+echo "=== Kernel Infformation ==="
+echo "Kernel: $(uname -r)"
+
+echo "=== Basic FIPS Status ==="
+if [ -f /proc/sys/crypto/fips_enabled ]; then
+    FIPS_STATUS=$(cat /proc/sys/crypto/fips_enabled)
+    echo "FIPS enabled: $FIPS_STATUS"
+
+    if [ "$FIPS_STATUS" = "1" ]; then
+        echo "FIPS mode is ACTIVE"
+        echo
+        echo "Available crypto algorithms:"
+        grep "^name" /proc/crypto | head -10
+        echo
+    else
+        echo "FIPS mode is INACTIVE"
+    fi
+else
+    echo "FIPS support not available"
+fi
+
+echo "=== Done ==="
+echo "Type 'exit' to shutdown"
+exec /bin/sh
+EOF
+```
+> Alternatively, you can review the pre-existing `init` templates in `workspace/initramfs/init_templates` and simply copy one to overwrite the `init` file in the base filesystem instead of manually writing over it as we did in step 2.
+
+3. Create a compressed `initramfs` image
+```bash
+find workspace/iniramfs/base | cpio -o -H | gzip > workspace/iniramfs/builds/alpine-basic-fips.cpio.gz
+```
+And we have created our `initramfs`! Subsequent `initramfs` images can be created by selecting or creating a new `init` script and overwriting the one in the base folder, then re-running the command in step 3 with the updated name for the actual `initramfs` image.
 
 ### Starting the Container
 The first time you start the container, it will take a while for it to be ready. Because of caching, subsequent starts will be almost instant.
