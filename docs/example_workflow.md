@@ -159,7 +159,7 @@ Running this script will copy the compiled kernel binary into the `/workspace/wo
 ```
 3. This script will output a "build name". Store it in environmental variable
 ```bash
-BUILD="linux-a.b.c-20250614-SOMETHING-14053/bzImage"
+BUILD="/workspace/workspace/builds/linux-a.b.c-20250614-SOMETHING-14053/bzImage"
 ```
 
 ## Creating the initramfs
@@ -167,7 +167,7 @@ BUILD="linux-a.b.c-20250614-SOMETHING-14053/bzImage"
 The extracted Alpine filesystem will function as a *base filesystem* for our initramfs, which means we only need one copy of it and can re-use across different functional testing sessions. However, what is changeable is the `init` script in the filesystem. It is the first thing to run when we boot. This can be as simple or complex as we want. There are a few template `init` scripts in `workspace/initramfs/init_templates`. For now, we will explicitly show how to create one.
 1. First, extract the filesystem into the base folder
 ```bash
-tar -xzf sources/initramfs/alpine-minirootfs-3.19.7-x86_64.tar.gz workspace/intiramfs/base/
+tar -xzf sources/initramfs/alpine-minirootfs-3.19.7-x86_64.tar.gz workspace/initramfs/base/
 ```
 2. Write a small custom script into the `init` file of the filesystem
 ```bash
@@ -207,11 +207,11 @@ EOF
 
 3. Create a compressed `initramfs` image
 ```bash
-find workspace/iniramfs/base | cpio -o -H newc | gzip > workspace/initramfs/builds/alpine-basic-fips.cpio.gz
+find workspace/initramfs/base | cpio -o -H newc | gzip > workspace/initramfs/builds/alpine-basic-fips.cpio.gz
 ```
 4. Store the `initramfs` path in an environment variable
 ```bash
-INITRAMFS=workspace/initramfs/builds/alpine-basic-fips.cpio.gz
+INITRAMFS=/workspace/workspace/initramfs/builds/alpine-basic-fips.cpio.gz
 ```
 And we have created our `initramfs`! Subsequent `initramfs` images can be created by selecting or creating a new `init` script and overwriting the one in the base folder, then re-running the command in step 3 with the updated name for the actual `initramfs` image.
 
@@ -237,7 +237,7 @@ qemu-system-x86_64 \
    -kernel $BUILD \
    -initrd $INITRAMFS \
    -nographic \
-   -append "console=ttyS0 fips=1"
+   -append "console=ttyS0 fips=1" \
    -m 1G | tee "$LOG/basic.log"
 
 # Algorithm failure test
@@ -245,8 +245,24 @@ qemu-system-x86_64 \
    -kernel $BUILD \
    -initrd $INITRAMFS \
    -nographic \
-   -append "console=ttyS0 fips=1 fips_fail_kats=1"
+   -append "console=ttyS0 fips=1 fips_fail_kats=1" \
    -m 1G | tee "$LOG/kat-fails.log"
+
+# Specific algorithm failure test
+qemu-system-x86_64 \
+   -kernel $BUILD \
+   -initrd $INITRAMFS \
+   -nographic \
+   -append "console=ttyS0 fips=1 cryptomgr.fips_tinker=aes-generic" \
+   -m 1G | tee "$LOG/aes-failure.log"
+
+# Panic prevention test  
+qemu-system-x86_64 \
+   -kernel $BUILD \
+   -initrd $INITRAMFS \
+   -nographic \
+   -append "console=ttyS0 fips=1 fips_fail_kats=1 cryptomgr.fips_prevent_panic=1" \
+   -m 1G | tee "$LOG/panic-prevention.log"
 ```
 
 ### Analyzing the Logs
