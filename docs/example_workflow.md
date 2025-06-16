@@ -243,7 +243,7 @@ With environment variables set, the following commands are all the same but for 
 ```bash
 # Basic test
 qemu-system-x86_64 \
-   -kernel $BUILD \
+   -kernel $BUILD/bzImage \
    -initrd $INITRAMFS \
    -nographic \
    -append "console=ttyS0 fips=1" \
@@ -251,7 +251,7 @@ qemu-system-x86_64 \
 
 # Algorithm failure test
 qemu-system-x86_64 \
-   -kernel $BUILD \
+   -kernel $BUILD/bzImage \
    -initrd $INITRAMFS \
    -nographic \
    -append "console=ttyS0 fips=1 fips_fail_kats=1" \
@@ -259,7 +259,7 @@ qemu-system-x86_64 \
 
 # Specific algorithm failure test
 qemu-system-x86_64 \
-   -kernel $BUILD \
+   -kernel $BUILD/bzImage \
    -initrd $INITRAMFS \
    -nographic \
    -append "console=ttyS0 fips=1 cryptomgr.fips_tinker=aes-generic" \
@@ -267,7 +267,7 @@ qemu-system-x86_64 \
 
 # Panic prevention test  
 qemu-system-x86_64 \
-   -kernel $BUILD \
+   -kernel $BUILD/bzImage \
    -initrd $INITRAMFS \
    -nographic \
    -append "console=ttyS0 fips=1 fips_fail_kats=1 cryptomgr.fips_prevent_panic=1" \
