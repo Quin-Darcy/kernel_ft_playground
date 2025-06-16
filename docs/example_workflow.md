@@ -170,11 +170,15 @@ BUILD="/workspace/workspace/builds/linux-a.b.c-20250614-SOMETHING-14053/bzImage"
 ## Creating the initramfs
 ### Creating the initramfs Image (Only once)
 The extracted Alpine filesystem will function as a *base filesystem* for our initramfs, which means we only need one copy of it and can re-use across different functional testing sessions. However, what is changeable is the `init` script in the filesystem. It is the first thing to run when we boot. This can be as simple or complex as we want. There are a few template `init` scripts in `workspace/initramfs/init_templates`. For now, we will explicitly show how to create one.
-1. First, extract the filesystem into the base folder
+1. First, navigate to the root directory of the project
+```bash
+cd /workspace
+```
+3. Second, extract the filesystem into the base folder
 ```bash
 tar -xzf sources/initramfs/alpine-minirootfs-3.19.7-x86_64.tar.gz workspace/initramfs/base/
 ```
-2. Write a small custom script into the `init` file of the filesystem
+3. Write a small custom script into the `init` file of the filesystem
 ```bash
 cat > workspace/initramfs/base/init << 'EOF'
 #!/bin/sh
@@ -210,11 +214,11 @@ EOF
 ```
 > Alternatively, you can review the pre-existing `init` templates in `workspace/initramfs/init_templates` and simply copy one to overwrite the `init` file in the base filesystem instead of manually writing over it as we did in step 2.
 
-3. Create a compressed `initramfs` image
+4. Create a compressed `initramfs` image
 ```bash
 find workspace/initramfs/base | cpio -o -H newc | gzip > workspace/initramfs/builds/alpine-basic-fips.cpio.gz
 ```
-4. Store the `initramfs` path in an environment variable
+5. Store the `initramfs` path in an environment variable
 ```bash
 INITRAMFS=/workspace/workspace/initramfs/builds/alpine-basic-fips.cpio.gz
 ```
