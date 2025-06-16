@@ -47,6 +47,9 @@ wget -P sources/initramfs/ https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/
 The first time you start the container, it will take a while for it to be ready. Because of caching, subsequent starts will be almost instant.
 - Navigate into the `docker/` folder and run the initialization script.
 ```bash
+chmod +x init.sh
+```
+```bash
 cd docker && ./init.sh
 ```
 If you want to know more about the docker container that is created, check out the following [documentation](../docker/README.md).
@@ -59,7 +62,7 @@ tar -xf sources/kernels/linux-a.b.c/linux-a.b.c.tar.gz workspace/current/
 ```
 - If you are working with a cloned repo, just copy the source into the current workspace (I know this isn't very space efficient)
 ```bash
-cp sources/kernels/linux-a.b.c workspace/current/
+cp -r sources/kernels/linux-a.b.c workspace/current/
 ```
 
 ### Copying Patches into the Current Workspace
