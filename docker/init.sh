@@ -12,7 +12,7 @@ docker compose build
 
 echo "Setting up workspace structure ..."
 mkdir -p ../workspace/{current,builds,initramfs,configs}
-mkdir -p ../workspace/initramfs/{init_templates,builds}
+mkdir -p ../workspace/initramfs/{init_templates,builds,base}
 mkdir -p ../sources/{kernels,initramfs}
 mkdir -p ../patches/{examples}
 mkdir -p ../tools/{scripts}
