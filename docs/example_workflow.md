@@ -116,6 +116,7 @@ make menuconfig
       - `sys file system support`
    - Enable `Cryptographic API` -> `Crypto core or helper` -> `Enable cryptographic self-tests`
    - Enable `Cryptographic API` -> all the crypto algos you want to test
+   - Enable `Cryptographic API` -> `Crypto core or helper` -> `FIPS 200 compliance`
    - Save and exit
   
 6. Open the `.config` file
