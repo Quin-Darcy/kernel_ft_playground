@@ -103,17 +103,18 @@ make menuconfig
 ```
 5. Set the following config options:
    - Enable `64-bit kernel` option.
-   - Enable `Device drivers` -> `Character devices` -> `TTY`
-   - Enable `General setup` -> `Configure standard kernel features` -> `support for printk`
    - Enable `General setup` -> `Initial RAM filesystem and RAM disk (initramfs/initrd)`
-   - Enable `Executable file format` -> `Kernel support for ELF binaries`
-   - Enable `Pseudo filesystems` -> `sys file system support`
-   - Enable `Device drivers` -> `Character devices` -> `Serial drivers` -> `8250/16550 and compatible serial support` and `Console on 8250/16550 and compatible serial support`
+   - Enable `General setup` -> `Configure standard kernel features` -> `support for printk`
    - Enable `Enable loadable module support` -> `Module signature verification`
-   - Disable `Cryptograhpic API` -> `Disable run-time self tests`
-   - Enable `Cryptographic API` -> `NIST SP800-90A DRBG` -> one of these
-   - Enable `Cryptographic API` -> `FIPS 200 Compliance`
-   - TBD disable system wide ring
+   - Enable `Executable file format` -> `Kernel support for ELF binaries`
+   - Enable `Device drivers` -> `Character devices` -> `TTY`
+   - Enable `Device drivers` -> `Character devices` -> `Serial drivers` ->
+      - `8250/16550 and compatible serial support`
+      - `Console on 8250/16550 and compatible serial support`
+   - Enable `File systems` -> `Pseudo filesystems` ->
+      - `/proc file system support`
+      - `sys file system support`
+   - Enable `Cryptographic API` -> `Crypto core or helper` -> `Enable cryptographic self-tests`
    - Enable `Cryptographic API` -> all the crypto algos you want to test
    - Save and exit
   
