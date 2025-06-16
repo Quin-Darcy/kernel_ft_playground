@@ -176,7 +176,7 @@ cd /workspace
 ```
 3. Second, extract the filesystem into the base folder
 ```bash
-tar -xzf sources/initramfs/alpine-minirootfs-3.19.7-x86_64.tar.gz workspace/initramfs/base/
+tar -xzf sources/initramfs/alpine-minirootfs-3.19.7-x86_64.tar.gz -C workspace/initramfs/base/
 ```
 3. Write a small custom script into the `init` file of the filesystem
 ```bash
