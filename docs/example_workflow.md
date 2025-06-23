@@ -47,10 +47,7 @@ wget -P sources/initramfs/ https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/
 The first time you start the container, it will take a while for it to be ready. Because of caching, subsequent starts will be almost instant.
 - Navigate into the `docker/` folder and run the initialization script.
 ```bash
-chmod +x init.sh
-```
-```bash
-cd docker && ./init.sh
+cd docker && chmod +x init.sh && ./init.sh
 ```
 If you want to know more about the docker container that is created, check out the following [documentation](../docker/README.md).
 
