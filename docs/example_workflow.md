@@ -85,7 +85,10 @@ Skip the next step if you decided to copy the kernel config.
 ### Manual Configuration
 There are many ways to configure the kernel but below will be how to create a minimal kernel for FIPS functional testing.
 1. Navigate to the root of your kernel source tree.
-2. Clean the whole folder
+```bash
+cd workspace/current/linux-a.b.c
+```
+3. Clean the whole folder
 ```bash
 make mrproper
 ```
