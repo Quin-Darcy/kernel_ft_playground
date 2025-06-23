@@ -1,7 +1,8 @@
 # Example Workflow
 Below is a demonstation of a full functional testing session using this project and its recommended workflow. 
 
-> **NOTE** These instructions assume you are starting in the project's root folder.
+> [!NOTE]
+> These instructions assume you are starting in the project's root folder.
 
 ## Initial Setup - Getting Everything in Place
 ### Obtaining the Kernel Source
@@ -92,7 +93,8 @@ cd workspace/current/linux-a.b.c
 ```bash
 make mrproper
 ```
-> **NOTE** There is sometimes a case-sensitivity issue depending on the filesystem which the docker volume is mounted. Check to makesure you have a `Makefile`. If you only see `makefile`, you may need to delete it, then create a new file called `Makefile` and manually copy the contents in.
+> [!WARNING]
+> There is sometimes a case-sensitivity issue depending on the filesystem which the docker volume is mounted. Check to makesure you have a `Makefile`. If you only see `makefile`, you may need to delete it, then create a new file called `Makefile` and manually copy the contents in.
 
 3. Create a minimal config file
 ```bash
@@ -129,7 +131,8 @@ vim .config
 ```bash
 CONFIG_CRYPTO_MANAGER=m`
 ```
-> **NOTE** The reason for step 7 is because by making the crypto manager a module, we can then pass in module parameters in the boot arguments. If the crypto manager was built-in, the module paramaters which our patches create for testing purposes would be inaccessible.
+> [!NOTE]
+> The reason for step 7 is because by making the crypto manager a module, we can then pass in module parameters in the boot arguments. If the crypto manager was built-in, the module paramaters which our patches create for testing purposes would be inaccessible.
 
 ## Build and Archive the Kernel
 At this point, the tedious setup is done and you should close your computer for 6 minutes and focus on your breath before coming back. Pay attention to the sensation of air around your nostrils. If you start to think of something else, without judgement, label it "thinking", then bring your attention back to the sensation. Even if you find yourself having 1000 thoughts, simply label it without judgement and bring your focus back to the sensation.
@@ -158,7 +161,8 @@ Assuming the build was nice and successful, we will now 'save our work'.
 cp /workspace/tools/scripts/archive-build.sh ./
 ```
 Running this script will copy the compiled kernel binary into the `/workspace/workspace/builds` folder along with the HMAC of the binary and the module files.
-> **NOTE** There is a special string option to add if you edit the `archive-build.sh` script. This is recommended to help further contextualize the build.
+> [!TIP]
+> There is a special string option to add if you edit the `archive-build.sh` script. This is recommended to help further contextualize the build.
 
 2. Run the script
 ```bash
@@ -214,7 +218,7 @@ echo "Type 'exit' to shutdown"
 exec /bin/sh
 EOF
 ```
-> **NOTE** Alternatively, you can review the pre-existing `init` templates in `workspace/initramfs/init_templates` and simply copy one to overwrite the `init` file in the base filesystem instead of manually writing over it as we did in step 2.
+> [!NOTE] Alternatively, you can review the pre-existing `init` templates in `workspace/initramfs/init_templates` and simply copy one to overwrite the `init` file in the base filesystem instead of manually writing over it as we did in step 2.
 
 4. Create a compressed `initramfs` image
 ```bash
