@@ -218,7 +218,8 @@ echo "Type 'exit' to shutdown"
 exec /bin/sh
 EOF
 ```
-> [!NOTE] Alternatively, you can review the pre-existing `init` templates in `workspace/initramfs/init_templates` and simply copy one to overwrite the `init` file in the base filesystem instead of manually writing over it as we did in step 2.
+> [!NOTE] 
+> Alternatively, you can review the pre-existing `init` templates in `workspace/initramfs/init_templates` and simply copy one to overwrite the `init` file in the base filesystem instead of manually writing over it as we did in step 2.
 
 4. Create a compressed `initramfs` image
 ```bash
