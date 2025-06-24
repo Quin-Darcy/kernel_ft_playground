@@ -1,0 +1,31 @@
+--- a/crypto/ecdh.c	2025-02-14 15:59:12
++++ b/crypto/ecdh.c	2025-02-14 16:01:30
+@@ -13,6 +13,12 @@
+ #include <linux/scatterlist.h>
+ #include <linux/fips.h>
+ #include <linux/fips.h>
++
++static bool fips_fail_ecdh_pct = 0;
++module_param(fips_fail_ecdh_pct, bool, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
++MODULE_PARM_DESC(fips_fail_ecdh_pct, "FIPS testing: force ECDH PCT to fail.");
++
++
+ struct ecdh_ctx {
+ 	unsigned int curve_id;
+ 	unsigned int ndigits;
+@@ -122,8 +128,13 @@
+ 				kfree(public_key_pct);
+ 				goto free_all;
+ 			}
+-
+-			if (memcmp(public_key, public_key_pct, public_key_sz))
++			if (fips_fail_ecdh_pct){
++				*public_key_pct += 1;
++			    printk("Altering input for ECDH PCT %u\n", fips_fail_ecdh_pct);
++            }
++			if (memcmp(public_key, public_key_pct, public_key_sz) && fips_fail_ecdh_pct)
++				printk("Prevented panic for failed ECDH PCT");
++			else if (memcmp(public_key, public_key_pct, public_key_sz))
+ 				panic("ECDH PCT failed in FIPS mode");
+ 			kfree(public_key_pct);
+ 		}

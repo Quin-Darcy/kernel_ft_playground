@@ -1,0 +1,51 @@
+--- a/crypto/jitterentropy-kcapi.c	2024-10-01 12:54:01
++++ b/crypto/jitterentropy-kcapi.c	2025-02-14 14:50:28
+@@ -50,6 +50,13 @@
+ 
+ #define JENT_CONDITIONING_HASH	"sha3-256-generic"
+ 
++//////////////Added for Kernel Testing//////////////
++static bool fips_prevent_panic = 0;
++module_param(fips_prevent_panic, bool, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
++MODULE_PARM_DESC(fips_prevent_panic, "FIPS testing: prevent health test panics");
++//////////////Added for Kernel Testing//////////////
++
++
+ /***************************************************************************
+  * Helper function
+  ***************************************************************************/
+@@ -279,7 +286,7 @@
+ 	spin_lock(&rng->jent_lock);
+ 
+ 	ret = jent_read_entropy(rng->entropy_collector, rdata, dlen);
+-
++	printk("This is the return value jitter generate: %d\n", ret);
+ 	if (ret == -3) {
+ 		/* Handle permanent health test error */
+ 		/*
+@@ -289,7 +296,14 @@
+ 		 * a FIPS module error.
+ 		 */
+ 		if (fips_enabled)
++		{
++			//////////////Added for Kernel Testing//////////////
++			if (fips_prevent_panic)
++				printk("FIPS test: preventing permanent health test failure panic\n");
++			else
++			//////////////Added for Kernel Testing//////////////
+ 			panic("Jitter RNG permanent health test failure\n");
++		}
+ 
+ 		pr_err("Jitter RNG permanent health test failure\n");
+ 		ret = -EFAULT;
+@@ -345,7 +359,9 @@
+ 	crypto_free_shash(tfm);
+ 	if (ret) {
+ 		/* Handle permanent health test error */
+-		if (fips_enabled)
++		if (fips_enabled && fips_prevent_panic) 
++			printk("FIPS test {jent_mod_init}: prevent kernel panic due to health tests failure\n");
++		else if (fips_enabled)
+ 			panic("jitterentropy: Initialization failed with host not compliant with requirements: %d\n", ret);
+ 
+ 		pr_info("jitterentropy: Initialization failed with host not compliant with requirements: %d\n", ret);

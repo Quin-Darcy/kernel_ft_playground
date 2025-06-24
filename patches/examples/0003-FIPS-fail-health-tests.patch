@@ -1,0 +1,49 @@
+--- ./crypto/jitterentropy.c.orig	2025-02-14 10:15:01
++++ ./crypto/jitterentropy.c	2025-02-14 10:15:01
+@@ -148,6 +148,23 @@
+ #include <linux/fips.h>
+ #include "jitterentropy.h"
+ 
++//////////////Added for Kernel Testing//////////////
++#include <linux/module.h>
++
++
++static int fips_fail_apt = 0;
++module_param(fips_fail_apt, int, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
++MODULE_PARM_DESC(fips_fail_apt, "FIPS testing: force APT health test failure");
++
++static int fips_fail_rct = 0;
++module_param(fips_fail_rct, int, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
++MODULE_PARM_DESC(fips_fail_rct, "FIPS testing: force RCT health test failure");
++
++static bool is_jent_entropy_init_initialized = false;
++
++static bool fips_jent_already_failed = false;
++//////////////Added for Kernel Testing//////////////
++
+ /***************************************************************************
+  * Adaptive Proportion Test
+  *
+@@ -614,6 +631,15 @@
+ 		jent_gen_entropy(ec);
+ 
+ 		health_test_result = jent_health_failure(ec);
++		if (fips_fail_apt){
++			printk("Modified apt return value");
++			health_test_result = 2<<JENT_PERMANENT_FAILURE_SHIFT;
++			printk("The apt health test result is: %d\n", health_test_result);
++		} else if (fips_fail_rct){
++			printk("Modified rct return value");
++			health_test_result = 1<<JENT_PERMANENT_FAILURE_SHIFT;
++			printk("The rct health test result is: %d\n", health_test_result);
++		}
+ 		if (health_test_result > JENT_PERMANENT_FAILURE_SHIFT) {
+ 			/*
+ 			 * At this point, the Jitter RNG instance is considered
+@@ -824,5 +850,6 @@
+ 	if (ec_free)
+ 		jent_entropy_collector_free(ec);
+ 
++	is_jent_entropy_init_initialized = true;
+ 	return ret;
+ }

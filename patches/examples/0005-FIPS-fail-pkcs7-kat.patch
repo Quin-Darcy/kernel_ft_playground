@@ -1,0 +1,93 @@
+--- a/crypto/asymmetric_keys/selftest.c	2024-11-26 11:40:10
++++ b/crypto/asymmetric_keys/selftest.c	2024-11-26 11:44:38
+@@ -10,9 +10,21 @@
+ #include <linux/kernel.h>
+ #include <linux/key.h>
+ #include <linux/module.h>
++
++//////////////Added for Kernel Testing//////////////
++#include <linux/slab.h>
++//////////////Added for Kernel Testing//////////////
++
+ #include "selftest.h"
+ #include "x509_parser.h"
+ 
++
++//////////////Added for Kernel Testing//////////////
++static bool fips_fail_kat = 0;
++module_param(fips_fail_kat, bool, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
++MODULE_PARM_DESC(fips_fail_kat, "FIPS testing: force PKCS#7 KAT failure");
++//////////////Added for Kernel Testing//////////////
++
+ void fips_signature_selftest(const char *name,
+ 			     const u8 *keys, size_t keys_len,
+ 			     const u8 *data, size_t data_len,
+@@ -39,19 +51,63 @@
+ 
+ 	struct pkcs7_message *pkcs7;
+ 
++	//////////////Added for Kernel Testing//////////////
++	char *testbuf = NULL;
++	const char *data_ptr = data;
++	//////////////Added for Kernel Testing//////////////
++
+ 	pkcs7 = pkcs7_parse_message(sig, sig_len);
+ 	if (IS_ERR(pkcs7))
+ 		panic("Certs %s selftest: pkcs7_parse_message() = %d\n", name, ret);
+ 
+-	pkcs7_supply_detached_data(pkcs7, data, data_len);
++	//////////////Added for Kernel Testing//////////////
++	// pkcs7_supply_detached_data(pkcs7, data, data_len);
++	if (data_len && fips_fail_kat) {
++		testbuf = kmalloc(data_len, GFP_KERNEL);
++		if (!testbuf)
++			return -ENOMEM;
++		memcpy(testbuf, data, data_len);
++		testbuf[0] ^= 1;
++		data_ptr = testbuf;
++		printk("FIPS test: altering expected data for PKCS#7 self-test\n");
++	}
+ 
++	pkcs7_supply_detached_data(pkcs7, data_ptr, data_len);
++
++	if (testbuf)
++		kfree(testbuf);
++	//////////////Added for Kernel Testing//////////////
++
++
+ 	ret = pkcs7_verify(pkcs7, VERIFYING_MODULE_SIGNATURE);
+-	if (ret < 0)
+-		panic("Certs %s selftest: pkcs7_verify() = %d\n", name, ret);
+ 
++	//////////////Added for Kernel Testing//////////////
++	// if (ret < 0)
++	// 	panic("Certs %s selftest: pkcs7_verify() = %d\n", name, ret);
++	if (ret < 0) {
++		if (fips_fail_kat) {
++			printk("FIPS test: prevent PKCS#7 self-test kernel panic\n");
++			return 0;
++		} else
++			panic("Certs selftest %d: pkcs7_verify() = %d\n", name, ret);
++	}
++	//////////////Added for Kernel Testing//////////////
++
++
+ 	ret = pkcs7_validate_trust(pkcs7, keyring, VERIFYING_UNSPECIFIED_SIGNATURE);
+-	if (ret < 0)
+-		panic("Certs %s selftest: pkcs7_validate_trust() = %d\n", name, ret);
++
++	//////////////Added for Kernel Testing//////////////
++	// if (ret < 0)
++	// 	panic("Certs %s selftest: pkcs7_validate_trust() = %d\n", name, ret);
++	if (ret < 0) {
++		if (fips_fail_kat) {
++			printk("FIPS test: prevent PKCS#7 self-test kernel panic\n");
++			return 0;
++		} else
++			panic("Certs selftest %d: pkcs7_validate_trust() = %d\n", name, ret);
++	}
++
++	//////////////Added for Kernel Testing//////////////
+ 
+ 	pkcs7_free_message(pkcs7);
+ 

@@ -1,0 +1,32 @@
+--- a/crypto/dh.c	2025-02-14 16:03:28
++++ b/crypto/dh.c	2025-02-14 16:02:55
+@@ -13,6 +13,11 @@
+ #include <crypto/rng.h>
+ #include <linux/mpi.h>
+ 
++
++static bool fips_fail_dh_pct = 0;
++module_param(fips_fail_dh_pct, bool, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
++MODULE_PARM_DESC(fips_fail_dh_pct, "FIPS testing: force DH PCT to fail.");
++
+ struct dh_ctx {
+ 	MPI p;	/* Value is guaranteed to be set. */
+ 	MPI g;	/* Value is guaranteed to be set. */
+@@ -250,7 +255,16 @@
+ 				goto err_free_val;
+ 			}
+ 
+-			if (mpi_cmp(val, val_pct) != 0) {
++			 ////////Added for Kernel Testing/////////////
++			if (fips_fail_dh_pct){
++				mpi_add_ui(val_pct, val_pct, 1);
++			    printk("Altering input for DH PCT %u\n", fips_fail_dh_pct);
++            }    
++			////////Added for Kernel Testing/////////////			
++
++			if (mpi_cmp(val, val_pct) != 0 && fips_fail_dh_pct)
++				printk("Prevented panic for failed DH PCT");
++			else if (mpi_cmp(val, val_pct) != 0){
+ 				mpi_free(val_pct);
+ 				panic("DH PCT failed in FIPS mode");
+ 			}
