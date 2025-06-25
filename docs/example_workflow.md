@@ -38,6 +38,9 @@ mkdir -p /path/to/this/project/patches/linux-a.b.c/
 cp /path/to/your/patches/* /path/to/this/project/patches/linux-a.b.c/
 ```
 
+> [NOTE!]
+> Several patches related to functional testing are available in the `patches/examples/` of this project. However, they will more than likely need to be modified so they can be succussfully applied to your specific kernel. After modifying the patches, it is recommened you move the modified patches into a new subfolder like `patches/linux-a.b.c/`. 
+
 ### Download the Alpine Linux minimal root filesystem (Only once)
 This downloads a tiny, but complete userspace environment. It's what gives us a shell ontop of the kernel we are testing. This only needs to be downloaded once as it simply provides the shell. However, if you prefer another userspace provider, it should go in the same folder `sources/initramfs/`.
 ```bash
